@@ -20,7 +20,6 @@ public class Portfolio {
     private double value;
     private double revenue;
     private double revenuePercent;
-    private int holdingsAmount;
     @OneToMany(
             cascade = CascadeType.ALL,
             orphanRemoval = true
