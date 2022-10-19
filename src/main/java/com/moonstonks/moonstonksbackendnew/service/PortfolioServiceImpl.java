@@ -83,8 +83,34 @@ public class PortfolioServiceImpl implements PortfolioService {
 
     @Override
     public void removeHolding(Long id, String holdingSymbol, int amount) {
-        //generate removeHolding function, which removes a specific amount of a Portfolio's holding filterd by Holding Symbol. If Holding Entry has lest shares then the ammount which should be removed , remove the rest of the next Holding entry
 
+        // loop through all Holdings of a portfolio, if holdingSymbol matches save them in a list, if amount is bigger than the amountShares of the holding, remove the holding and subtract the amount from the amount of the next holding, if amount is smaller than the amountShares of the holding, subtract the amount from the amountShares of the holding, if amount is equal to the amountShares of the holding, remove the holding.
+
+        Portfolio portfolio = portfolioRepository.findById(id).get();
+        List<Holding> holdingList = portfolio.getHoldings();
+        int amountLeft = amount;
+        while(amountLeft != 0){
+            for (Holding holding : holdingList) {
+                if(holding.getSymbol().equals(holdingSymbol)){
+                    if(amountLeft > holding.getAmountShares()){
+                        amountLeft -= holding.getAmountShares();
+                        holdingList.remove(holding);
+                    }else if(amountLeft < holding.getAmountShares()){
+                        holding.setAmountShares(holding.getAmountShares() - amountLeft);
+                        amountLeft = 0;
+                    }else if (amountLeft == holding.getAmountShares()){
+                        holdingList.remove(holding);
+                        amountLeft = 0;
+                    }
+                } else if(holding == null){
+                    throw new IllegalStateException("Holding with symbol " + holdingSymbol + " does not exist");
+                }
+            }
+        }
+        portfolio.setHoldings(holdingList);
+        portfolio.calculatesPortfolioValue();
+        portfolio.calculatesPortfolioRevenue();
+        portfolioRepository.save(portfolio);
     }
 
     @Override
@@ -95,7 +121,7 @@ public class PortfolioServiceImpl implements PortfolioService {
     @Override
     public Portfolio updateValues(Long id) {
         Portfolio portfolio = portfolioRepository.findById(id).get();
-        //GlobalQuote gq = restTemplate.getForObject("https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=AMZ.DEX  &apikey=Q81VYPZ66LS901H2", GlobalQuote.class);
+        //GlobalQuote gq = restTemplate.getForObject("https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=AMZ.DEX&apikey=Q81VYPZ66LS901H2", GlobalQuote.class);
 
         for (Holding holding : portfolio.getHoldings()) {
             holding.setCurrentPrice(holdingService.getHolding(holding.getSymbol()).getCurrentPrice());
