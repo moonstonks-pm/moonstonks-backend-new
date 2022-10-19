@@ -1,12 +1,10 @@
 package com.moonstonks.moonstonksbackendnew.service;
 
-import com.moonstonks.moonstonksbackendnew.model.API.GlobalQuote;
 import com.moonstonks.moonstonksbackendnew.model.Holding;
 import com.moonstonks.moonstonksbackendnew.model.Portfolio;
 import com.moonstonks.moonstonksbackendnew.repository.PortfolioRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -42,10 +40,10 @@ public class PortfolioServiceImpl implements PortfolioService {
     @Override
     public String updatePortfolioName(Long id, String name) {
         boolean exists = portfolioRepository.existsById(id);
-        if(!exists) {
+        if (!exists) {
 
             throw new IllegalStateException("Portfolio with id " + id + " does not exist");
-        }else{
+        } else {
             Portfolio portfolio = portfolioRepository.findById(id).get();
             portfolio.setName(name);
             portfolioRepository.save(portfolio);
@@ -89,21 +87,18 @@ public class PortfolioServiceImpl implements PortfolioService {
         Portfolio portfolio = portfolioRepository.findById(id).get();
         List<Holding> holdingList = portfolio.getHoldings();
         int amountLeft = amount;
-        while(amountLeft != 0){
-            for (Holding holding : holdingList) {
-                if(holding.getSymbol().equals(holdingSymbol)){
-                    if(amountLeft > holding.getAmountShares()){
-                        amountLeft -= holding.getAmountShares();
-                        holdingList.remove(holding);
-                    }else if(amountLeft < holding.getAmountShares()){
-                        holding.setAmountShares(holding.getAmountShares() - amountLeft);
-                        amountLeft = 0;
-                    }else if (amountLeft == holding.getAmountShares()){
-                        holdingList.remove(holding);
-                        amountLeft = 0;
-                    }
-                } else if(holding == null){
-                    throw new IllegalStateException("Holding with symbol " + holdingSymbol + " does not exist");
+        for (Holding holding : holdingList) {
+            if (holding.getSymbol().equals(holdingSymbol)) {
+                if (amountLeft > holding.getAmountShares()) {
+                    amountLeft -= holding.getAmountShares();
+                    holdingList.remove(holding);
+                    removeHolding(id, holdingSymbol, amountLeft);
+                } else if (amountLeft < holding.getAmountShares()) {
+                    holding.setAmountShares(holding.getAmountShares() - amountLeft);
+                    amountLeft = 0;
+                } else if (amountLeft == holding.getAmountShares()) {
+                    holdingList.remove(holding);
+                    amountLeft = 0;
                 }
             }
         }
