@@ -1,9 +1,12 @@
 package com.moonstonks.moonstonksbackendnew.service;
 
+import com.moonstonks.moonstonksbackendnew.model.API.GlobalQuote;
 import com.moonstonks.moonstonksbackendnew.model.Holding;
 import com.moonstonks.moonstonksbackendnew.model.Portfolio;
 import com.moonstonks.moonstonksbackendnew.repository.PortfolioRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,6 +16,8 @@ public class PortfolioServiceImpl implements PortfolioService {
 
     private PortfolioRepository portfolioRepository;
     private HoldingServiceImpl holdingService;
+
+    private RestTemplate restTemplate = new RestTemplate();
 
     public PortfolioServiceImpl(PortfolioRepository portfolioRepository, HoldingServiceImpl holdingService) {
         this.portfolioRepository = portfolioRepository;
@@ -51,12 +56,14 @@ public class PortfolioServiceImpl implements PortfolioService {
     @Override
     public double getPortfolioRevenue(long id) {
         Portfolio portfolio = portfolioRepository.findById(id).get();
+        portfolio.calculatesPortfolioRevenue();
         return portfolio.getRevenue();
     }
 
     @Override
     public double getPortfolioRevenuePercent(long id) {
         Portfolio portfolio = portfolioRepository.findById(id).get();
+        portfolio.calculatesPortfolioRevenuePercent();
         return portfolio.getRevenuePercent();
     }
 
@@ -88,13 +95,15 @@ public class PortfolioServiceImpl implements PortfolioService {
     @Override
     public Portfolio updateValues(Long id) {
         Portfolio portfolio = portfolioRepository.findById(id).get();
+        //GlobalQuote gq = restTemplate.getForObject("https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=AMZ.DEX  &apikey=Q81VYPZ66LS901H2", GlobalQuote.class);
 
         for (Holding holding : portfolio.getHoldings()) {
             holding.setCurrentPrice(holdingService.getHolding(holding.getSymbol()).getCurrentPrice());
         }
-
+        portfolio.calculatesPortfolioValue();
+        portfolio.calculatesPortfolioRevenue();
+        portfolio.calculatesPortfolioRevenuePercent();
         return portfolioRepository.save(portfolio);
 
     }
-
 }
