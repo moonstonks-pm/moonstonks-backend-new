@@ -9,22 +9,21 @@ public interface PortfolioService {
 
     Portfolio createPortfolio(Portfolio portfolio);
 
-    String updateName(String name);
+    void deletePortfolio(Long id);
 
-    String getName();
+    Portfolio getPortfolio(Long id);
 
-    double getPortfolioValue();
+    String updatePortfolioName(Long id, String name);
 
-    double getPortfolioRevenue();
+    double getPortfolioRevenue(long id);
 
-    double getPortfolioRevenuePercent();
+    double getPortfolioRevenuePercent(long id);
 
-    void createHolding(Holding holding);
+    Holding addHolding(long id, String holdingSymbol, int amount);
 
-    void addHolding(String holdingSymbol, int amount);
+    void removeHolding(Long id, String holdingSymbol, int amount);
 
-    void removeHolding(String holdingSymbol, int amount);
+    List<Holding> getAllHoldings(Long id);
 
-    List<Holding> getHoldings();
-
+    Portfolio updateValues(Long id);
 }

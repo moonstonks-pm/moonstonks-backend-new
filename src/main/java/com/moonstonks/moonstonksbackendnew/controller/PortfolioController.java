@@ -11,66 +11,64 @@ import java.util.List;
 @RequestMapping("/api/v1/portfolio")
 public class PortfolioController {
 
-    private final PortfolioService portfolioService;
+    private PortfolioService portfolioService;
 
     public PortfolioController(PortfolioService portfolioService) {
         this.portfolioService = portfolioService;
     }
+
 
     @PostMapping("")
     public Portfolio createPortfolio(@RequestBody Portfolio portfolio) {
         return portfolioService.createPortfolio(portfolio);
     }
 
-    @PutMapping("/name")
-    public String updatePortfolioName(@RequestBody String name) {
-        return portfolioService.updateName(name);
+    @DeleteMapping("/{id}")
+    public void deletePortfolio(@PathVariable Long id) {
+        portfolioService.deletePortfolio(id);
     }
 
-    @GetMapping("/name")
-    public String getPortfolioName() {
-        return portfolioService.getName();
+    @GetMapping("/{id}")
+    public Portfolio getPortfolio(@PathVariable Long id) {
+        return portfolioService.getPortfolio(id);
     }
 
-
-    @GetMapping("/value")
-    public double getPortfolioValue() {
-        return portfolioService.getPortfolioValue();
+    @PutMapping("/{id}/{name}")
+    public String updatePortfolioName(@PathVariable Long id, @PathVariable String name) {
+        return portfolioService.updatePortfolioName(id,name);
     }
 
     //Revenue
 
-    @GetMapping("/revenue")
-    public double getPortfolioRevenue() {
-        return portfolioService.getPortfolioRevenue();
+    @GetMapping("{id}/revenue")
+    public double getPortfolioRevenue(@PathVariable long id) {
+        return portfolioService.getPortfolioRevenue(id);
     }
 
-    @GetMapping("/revenue/percent")
-    public double getPortfolioRevenuePercent() {
-        return portfolioService.getPortfolioRevenuePercent();
+    @GetMapping("{id}/revenue/percent")
+    public double getPortfolioRevenuePercent(@PathVariable long id) {
+        return portfolioService.getPortfolioRevenuePercent(id);
     }
 
     //Holding
 
-    @PostMapping("/holdings")
-    public void createHolding(@RequestBody Holding holding) {
-        portfolioService.createHolding(holding);
+    @PostMapping("/{id}/holdings/{holdingSymbol}/{amount}")
+    public Holding addHolding(@PathVariable long id,@PathVariable String holdingSymbol, @PathVariable int amount) {
+        return portfolioService.addHolding(id, holdingSymbol, amount);
     }
 
-    @PutMapping("/holdings/{holdingSymbol}")
-    public void addHolding(@PathVariable String holdingSymbol, @PathVariable int amount) {
-        portfolioService.addHolding(holdingSymbol, amount);
+    @DeleteMapping("/{id}/holdings/{holdingSymbol}/{amount}")
+    public void removeHolding(@PathVariable Long id, @PathVariable String holdingSymbol, @PathVariable int amount) {
+        portfolioService.removeHolding(id, holdingSymbol, amount);
     }
 
-    @DeleteMapping("/holdings/{holdingSymbol}")
-    public void removeHolding(@PathVariable String holdingSymbol, @PathVariable int amount) {
-        portfolioService.removeHolding(holdingSymbol, amount);
+    @GetMapping("/{id}/holdings")
+    public List<Holding> getAllHoldings(@PathVariable Long id) {
+        return portfolioService.getAllHoldings(id);
     }
 
-    @GetMapping("/holdings")
-    public List<Holding> getHoldings() {
-        return portfolioService.getHoldings();
+    @PutMapping("/{id}/updateValues")
+    public Portfolio updateValues(@PathVariable Long id) {
+        return portfolioService.updateValues(id);
     }
-
-    //needs other stats like count of assetklasses, sectors, countries, etc
 }
